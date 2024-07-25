@@ -1,88 +1,106 @@
-# Aurora Corne's Default Keymap
-_This keymap is a copy of the [Corne default keymap](https://github.com/qmk/qmk_firmware/tree/master/keyboards/crkbd/keymaps/default), with modified OLED code._
+# Keymap
+_This keymap is a copy of the default splitkb corne layout, with disabled rgb underglow and modified keymap._
 
-A simple default keymap for the Aurora Corne
-============================================
+Generated from keymap.json, disabled power led on the liatris controller.
 
-Keymaps in general are quite personal, so it is difficult to come up with a default that will suit every user. We hope this keymap serves as a good starting point for your own - although it should be fairly usable out-of-the-box.
+# Config and compile
 
-What do all these layers do?
-----------------------------
+Install QMK tool and setup according to the [docs](https://docs.qmk.fm/).
 
-### Layer 0: Base layer
-
-![Layer 0](https://i.imgur.com/Ri5cTHqh.png)
-
-This is where your basic letters live.
-
-The homing thumb fingers are used to access the different layers.
-
-* The homing left thumb finger gives access to the Numbers (or lower) layer
-* The homing right thumb finger gives access to the Symbols (or raise) layer
-* Pressing both homing thumb fingers gives access to the Adjust layer
-
-### Layer 1: Lower
-
-![Layer 1](https://i.imgur.com/9h6ZRQLh.png)
-
-The Lower layer gives access to your number keys on the top row. It also exposes the arrow keys in the usual Vim-style layout.
-
-### Layer 2: Raise
-
-![Layer 2](https://i.imgur.com/U1pf7pJh.png)
-
-The Raise layer gives access to the symbols. In addition to shifted number keys on the top row, the right hand also exposes the remaining symbol keys, both as shifted and non-shifted variants.
-
-### Layer 3: Adjust
-
-![Layer 3](https://i.imgur.com/A6z1DCbh.png)
-
-The Adjust layer exposes RGB adjustment keys on the left hand.
-
-Where is the keymap.c?
-----------------------
-
-The keymap.c file is not published to the repository. It is generated from `keymap.json` by the build system.
-
-This avoids duplicating information and allow users to edit their keymap from the QMK Configurator web interface.
-
-How do I edit and update the keymap?
-------------------------------------
-
-The `keymap.json` file is generated from the QMK Configurator interface and formatted for better readability in the context of the Ferris keyboard.
-
-To edit it, you may:
-* Edit it directly from a text editor.
-* Edit it from the QMK Configurator.
-
-If you decide to use the latter workflow, here are the steps to follow:
-
-* From the [QMK Configurator](https://config.qmk.fm/#/splitkb/aurora/corne/rev1/LAYOUT_split_3x5_2), hit the "import QMK keymap json file" button (it has a drawing with an up arrow on it).
-* Browse to the location of your keymap (for example, `<your qmk repo>/keyboards/splitkb/aurora/corne/keymaps/default/keymap.json`)
-* Perform any modification to the keymap in the web UI
-* Export the keymap to your downloads folder, by hitting the "Export QMK keymap json file" button (it has a drawing with a down arrow on it)
-* Replace your original keymap with the one you just downloaded
-
-_**Note:** At the time of writing (the 24th of October 2022), not every feature used in the default keymap is supported by the QMK Configurator. You cannot yet upload the default `keymap.json` due to a file format mismatch - use the "Load Default" button to load the default keymap instead. Additionally, custom configuration options are still being worked on: if your keymap depends on them, please compile your firmware offline for now._
-
-I want to do more than the JSON format supports!
--------------------------------------------------
-
-While the `json` format is easy to use, it does lack certain functionality - most notably custom OLED or encoder behaviour.
-
-To add this, you need to convert it to the `c` format. Do keep in mind that this is generally a one-way operation.
-
-First, from the root of your qmk repo, move to your keymap folder
-
-```bash
-cd ./keymaps/splitkb/aurora/corne/my_personal_keymap
+Configure default keyboard and keymap:
+```sh
+qmk config user.keyboard=splitkb/aurora/corne
+qmk config user.keymap=mfatiga
 ```
 
-Next, convert your `keymap.json` to a `keymap.c`
-
-```bash
-qmk json2c -o keymap.c keymap.json
+Compile configured (for Liatris controller):
+```sh
+qmk compile -e CONVERT_TO=liatris
 ```
 
-You can add custom C code to the newly generated `keymap.c` file. Do note that you have to use **either** a C file **or** a JSON file - you cannot do both!  
-**If a JSON file is present, the C file is ignored.**
+Compile other (for Liatris controller):
+```sh
+qmk compile -e CONVERT_TO=liatris -kb splitkb/aurora/corne -km mfatiga
+```
+
+# Flashing
+ - put into bootloader mode
+ - mount new device
+ - copy compiled firmware (found inside `~/qmk_firmware/`) to mounted directory
+
+# Liatris power LED
+## Turning the power LED off
+
+By default, the power LED will be turned on all the time. If you wish to turn it off completely, place the following code in your **keymap.c**:
+
+```c
+void keyboard_pre_init_user(void) {  
+  // Set our LED pin as output  
+  setPinOutput(24);  
+  // Turn the LED off  
+  // (Due to technical reasons, high is off and low is on)  
+  writePinHigh(24);  
+}
+```
+
+When the keyboard is plugged in, the LED will initially power on. As soon as QMK starts running, it'll be turned off.
+
+## Use the LED for Caps Lock
+
+To use the LED as a Caps Lock indicator, add the following code to your **config.h**:
+```c
+#define LED_CAPS_LOCK_PIN 24  
+#define LED_PIN_ON_STATE 0
+```
+
+## Old keymap.json
+```json
+{
+    "keyboard": "splitkb/aurora/corne/rev1",
+    "keymap": "default",
+    "version": 1,
+    "layout": "LAYOUT_split_3x6_3",
+    "layers": [
+        [
+            "KC_TAB"  , "KC_Q"    , "KC_W"    , "KC_F"    , "KC_P"    , "KC_B"    , "KC_J"    , "KC_L"    , "KC_U"    , "KC_Y"    , "KC_SCLN" , "KC_ESC"  ,
+            "KC_LCTL" , "KC_A"    , "KC_R"    , "KC_S"    , "KC_T"    , "KC_G"    , "KC_M"    , "KC_N"    , "KC_E"    , "KC_I"    , "KC_O"    , "KC_QUOT" ,
+            "KC_LSFT" , "KC_Z"    , "KC_X"    , "KC_C"    , "KC_D"    , "KC_V"    , "KC_K"    , "KC_H"    , "KC_COMM" , "KC_DOT"  , "KC_SLSH" , "KC_LALT" ,
+                                                "MO(1)"   , "KC_BSPC" , "KC_SPC"  , "KC_ENT"  , "MO(2)"   , "KC_LGUI"
+        ],
+        [
+            "KC_TAB"  , "KC_EXLM" , "KC_AT"   , "KC_HASH" , "KC_DLR"  , "KC_PERC" , "KC_CIRC" , "KC_AMPR" , "KC_ASTR" , "KC_LPRN" , "KC_RPRN" , "KC_BSLS" ,
+            "KC_LCTL" , "KC_1"    , "KC_2"    , "KC_3"    , "KC_4"    , "KC_5"    , "KC_TILD" , "KC_PLUS" , "KC_EQL"  , "KC_LBRC" , "KC_RBRC" , "KC_PIPE" ,
+            "KC_LSFT" , "KC_6"    , "KC_7"    , "KC_8"    , "KC_9"    , "KC_0"    , "KC_GRV"  , "KC_MINS" , "KC_UNDS" , "KC_LCBR" , "KC_RCBR" , "KC_LALT" ,
+                                                "_______" , "KC_LALT" , "KC_SPC"  , "KC_ENT"  , "MO(3)"   , "KC_LGUI"
+        ],
+        [
+            "KC_F1"   , "KC_F2"   , "KC_F3"   , "KC_F4"   , "KC_F5"   , "KC_F6"   , "KC_F7"   , "KC_F8"   , "KC_F9"   , "KC_F10"  , "KC_F11"  , "KC_F12"  ,
+            "KC_LCTL" , "KC_1"    , "KC_2"    , "KC_3"    , "KC_4"    , "KC_5"    , "KC_LEFT" , "KC_DOWN" , "KC_UP"   , "KC_RIGHT", "XXXXXXX" , "XXXXXXX" ,
+            "KC_LSFT" , "KC_6"    , "KC_7"    , "KC_8"    , "KC_9"    , "KC_0"    , "KC_DEL"  , "KC_LEFT" , "KC_DOWN" , "KC_RIGHT", "XXXXXXX" , "XXXXXXX" ,
+                                                "MO(3)"   , "KC_BSPC" , "KC_SPC"  , "KC_ENT"  , "_______" , "KC_LGUI"
+        ],
+        [
+            "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "QK_BOOT" ,
+            "RGB_TOG" , "RGB_HUI" , "RGB_SAI" , "RGB_VAI" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" ,
+            "RGB_MOD" , "RGB_HUD" , "RGB_SAD" , "RGB_VAD" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" , "XXXXXXX" ,
+                                                "_______" , "KC_BSPC" , "KC_SPC"  , "KC_ENT"  , "_______" , "KC_LGUI"
+        ]
+    ],
+    "config": {
+        "features": {
+            "oled": true,
+            "rgb_matrix": true,
+            "rgblight": false
+        },
+        "encoder": {
+            "enabled": false
+        },
+        "rgblight": {
+            "hue_steps": 8,
+            "saturation_steps": 8,
+            "brightness_steps": 8,
+            "sleep": true
+        }
+    }
+}
+```
